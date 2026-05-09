@@ -1,0 +1,26 @@
+# Secrets
+.env
+
+# Runtime state
+seen_jobs.db
+consulbot.log
+.last_run
+.caf_waf_blocked_until
+.run_lock/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Editor
+.claude/
+.vscode/
+.idea/
+*.swp
+.DS_Store
