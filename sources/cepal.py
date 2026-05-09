@@ -1,8 +1,3 @@
-"""
-Fuente: CEPAL / ECLAC
-Portal: https://www.cepal.org/es/oportunidades-empleo
-Las convocatorias de consultoría aparecen en la sección de oportunidades de empleo.
-"""
 import hashlib
 import logging
 import re
@@ -94,7 +89,6 @@ def _parse_items(soup: BeautifulSoup) -> list[dict]:
     if jobs:
         return jobs
 
-    # Fallback: buscar links candidatos por texto y href
     for a in soup.select("a[href]"):
         title = " ".join(a.get_text(separator=" ", strip=True).split())
         href = a.get("href", "").strip()

@@ -1,11 +1,6 @@
-"""
-Fuente: CAF — Banco de Desarrollo de América Latina
-Portal: https://www.caf.com/es/sobre-caf/trabaja-con-nosotros/
-"""
 import hashlib
 import logging
 import os
-import re
 import unicodedata
 import urllib.parse
 from datetime import datetime, timedelta, timezone
@@ -89,7 +84,8 @@ def _uid(prefix: str, href: str, title: str) -> str:
 
 
 def _linkedin_stable_href(href: str) -> str:
-    """Strip volatile LinkedIn tracking params so the same job always gets the same ID."""
+    # LinkedIn agrega refId/trackingId que cambian cada request — se filtran
+    # para que el mismo job genere siempre el mismo ID.
     return href.split("?")[0].rstrip("/")
 
 

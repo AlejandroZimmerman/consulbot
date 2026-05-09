@@ -1,11 +1,3 @@
-"""
-ConsulBot — Telegram bot que monitorea consultorías de organismos internacionales.
-Versión GRATUITA: no usa API de Anthropic, filtra por keywords.
-
-Fuentes: BID, Banco Mundial, CEPAL, UNDP, CAF, FMI, BCRA.
-Uso:  python bot.py
-"""
-
 import asyncio
 import logging
 import os
@@ -54,12 +46,10 @@ def format_message(job: dict, scoring: dict) -> str:
     else:
         loc = "🏢 Requiere presencia"
 
-    # Mostrar ubicaciones reales si las tenemos (del IADB)
     locations_raw = job.get("_locations", "")
     if locations_raw:
-        # Limpiar y resumir: "Argentina Buenos Aires , Peru Lima , ..." → "Buenos Aires, Lima, ..."
         cities = [
-            part.strip().split()[-1]          # última palabra de cada "País Ciudad"
+            part.strip().split()[-1]
             for part in locations_raw.split(",")
             if part.strip()
         ][:5]
@@ -91,7 +81,6 @@ async def run():
 
     bot = Bot(token=TELEGRAM_TOKEN)
 
-    # Fetch todas las fuentes en paralelo
     results = await asyncio.gather(
         fetch_iadb(),
         fetch_worldbank(),
@@ -119,7 +108,6 @@ async def run():
     for job in new_jobs:
         mark_seen(job["id"], job["title"], job["org"])
 
-        # Pasar campos extra del IADB al scorer
         scoring = score_job(
             job["title"],
             job["body"],
@@ -143,7 +131,6 @@ async def run():
             except Exception as e:
                 log.error(f"Telegram error: {e}")
 
-    # Resumen si no hubo nada relevante
     if sent == 0:
         summary = (
             f"🤖 *ConsulBot* — {datetime.now().strftime('%d/%m %H:%M')}\n"

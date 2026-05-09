@@ -1,14 +1,3 @@
-"""
-Fuente: BID / Inter-American Development Bank
-Usa la API interna que el portal jobs.iadb.org llama para renderizar
-resultados (SuccessFactors). Descubierta monitoreando llamadas de red.
-
-  POST https://jobs.iadb.org/services/recruiting/v1/jobs
-
-Dos búsquedas:
-  1. locationText="buenos aires" → vacantes donde BA es una opción
-  2. searchKeyword="consultant" sin filtro de ciudad → captura remotos
-"""
 import logging
 import httpx
 
@@ -25,10 +14,8 @@ HEADERS = {
 }
 
 SEARCHES = [
-    # Todos los roles donde Buenos Aires es una opción (sin filtro de keyword)
     {"searchKeyword": "", "locationText": "buenos aires",
      "locale": "en_US", "resultsPerPage": 50, "currentPage": 0},
-    # Consultorías sin filtro de ciudad (captura remotos sin BA explícita)
     {"searchKeyword": "consultant", "locationText": "",
      "locale": "en_US", "resultsPerPage": 50, "currentPage": 0},
 ]
@@ -50,8 +37,8 @@ async def fetch_iadb() -> list[dict]:
                     job_id    = str(r.get("id", ""))
                     title     = r.get("unifiedStandardTitle", "").strip()
                     url_title = r.get("unifiedUrlTitle", r.get("urlTitle", ""))
-                    modality  = r.get("cust_workModality", [])   # ["Remote"] o ["On site"]
-                    locations = r.get("jobLocationShort", [])    # ["Argentina Buenos Aires ", ...]
+                    modality  = r.get("cust_workModality", [])
+                    locations = r.get("jobLocationShort", [])
                     start_dt  = r.get("unifiedStandardStart", "")
 
                     if not title or job_id in seen_ids:
@@ -62,7 +49,6 @@ async def fetch_iadb() -> list[dict]:
                     mod_text = modality[0] if modality else ""
                     loc_text = ", ".join(locations) if locations else ""
 
-                    # Body descriptivo para el scorer (en caso de que no use los campos directos)
                     body = (f"Work modality: {mod_text}. "
                             f"Locations: {loc_text}. "
                             f"{title}.")
@@ -70,13 +56,13 @@ async def fetch_iadb() -> list[dict]:
                     jobs.append({
                         "id":        f"iadb_{job_id}",
                         "title":     title,
-                        "org":       "BID / IDB",
                         "body":      body,
+                        "org":       "BID / IDB",
                         "url":       url,
                         "date":      start_dt,
                         "source":    "IADB API",
-                        "_modality": mod_text,   # campo directo para el scorer
-                        "_locations": loc_text,  # campo directo para el scorer
+                        "_modality": mod_text,
+                        "_locations": loc_text,
                     })
 
             except Exception as e:

@@ -1,4 +1,3 @@
-"""Módulo de base de datos SQLite para deduplicación de vacantes."""
 import sqlite3
 from datetime import datetime
 from pathlib import Path

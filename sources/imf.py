@@ -1,9 +1,3 @@
-"""
-Fuente: FMI / IMF
-Portal: https://www.imf.org/en/About/Recruitment
-El FMI posta consultorías técnicas principalmente para economists con
-experiencia en macroeconomía, datos fiscales, balanza de pagos — área relevante.
-"""
 import hashlib
 import logging
 import httpx
@@ -29,7 +23,6 @@ async def fetch_imf() -> list[dict]:
                 resp.raise_for_status()
                 soup = BeautifulSoup(resp.text, "html.parser")
 
-                # Buscar links que mencionen posiciones
                 for a in soup.select("a[href]"):
                     text = a.get_text(strip=True).lower()
                     if any(k in text for k in ["economist", "consultant", "analyst", "advisor", "statistician"]):

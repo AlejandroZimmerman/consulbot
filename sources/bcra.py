@@ -1,8 +1,3 @@
-"""
-Fuente: BCRA — Banco Central de la República Argentina
-Portal institucional: https://www.bcra.gob.ar/
-Extracción basada en sitemap y noticias/convocatorias públicas.
-"""
 import hashlib
 import logging
 import unicodedata
@@ -81,7 +76,6 @@ def _is_recent(lastmod: str) -> bool:
     if not lastmod:
         return True
     try:
-        # Soporta formatos ISO completos y fecha simple.
         iso = lastmod.replace("Z", "+00:00")
         dt = datetime.fromisoformat(iso)
         if dt.tzinfo is None:
@@ -118,7 +112,6 @@ async def _load_candidates(client: httpx.AsyncClient) -> list[tuple[str, str]]:
         except Exception as e:
             log.error(f"BCRA sitemap falló ({sitemap}): {e}")
 
-    # Mantener orden por fecha descendente (texto ISO), luego deduplicar.
     candidates.sort(key=lambda x: x[1], reverse=True)
     seen = set()
     unique: list[tuple[str, str]] = []
@@ -185,7 +178,6 @@ async def fetch_bcra() -> list[dict]:
             if len(jobs) >= 20:
                 break
 
-    # Deduplicar por ID por seguridad.
     seen = set()
     unique = []
     for j in jobs:

@@ -1,6 +1,5 @@
 #!/bin/bash
-# Wrapper que garantiza una corrida por ventana horaria (00-12 y 12-00).
-# Si una corrida falla o queda trunca, vuelve a intentarse en el siguiente disparo.
+# Una corrida por ventana de 12h (00-12 / 12-00). Si falla, se reintenta en el próximo disparo.
 
 BOT_DIR="/Users/ale/consulbot"
 UV="/Users/ale/.local/bin/uv"
@@ -12,7 +11,6 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
 }
 
-# Determinar ventana actual: "00" (medianoche) o "12" (mediodía)
 HOUR_STR=$(date +%H)
 HOUR=$((10#$HOUR_STR))
 
@@ -24,13 +22,11 @@ fi
 
 WINDOW_KEY="$(date +%Y-%m-%d)_${WINDOW}"
 
-# Si ya corrió en esta ventana, salir sin hacer nada
 if [ -f "$TIMESTAMP_FILE" ] && [ "$(cat "$TIMESTAMP_FILE")" = "$WINDOW_KEY" ]; then
     exit 0
 fi
 
-# Evitar ejecuciones superpuestas.
-# mkdir es atómico en POSIX: si ya existe, hay otra corrida en curso.
+# mkdir es atómico — evita corridas superpuestas si cron dispara dos veces.
 if ! mkdir "$LOCK_DIR" 2>/dev/null; then
     log "Corrida omitida: ya hay una instancia en curso"
     exit 0
@@ -41,12 +37,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Re-chequear la marca después de tomar lock para evitar carreras.
 if [ -f "$TIMESTAMP_FILE" ] && [ "$(cat "$TIMESTAMP_FILE")" = "$WINDOW_KEY" ]; then
     exit 0
 fi
 
-# Ejecutar el bot
 log "Iniciando consulbot (ventana: $WINDOW_KEY)"
 cd "$BOT_DIR"
 "$UV" run python bot.py

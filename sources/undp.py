@@ -1,9 +1,3 @@
-"""
-Fuente: UNDP / PNUD
-UNDP tiene RSS feeds oficiales y gratuitos para consultorías.
-https://jobs.undp.org/cj_rss_feed.cfm
-Usamos el feed de todas las consultorías + el feed de Argentina específicamente.
-"""
 import hashlib
 import logging
 import httpx
@@ -12,9 +6,7 @@ import feedparser
 log = logging.getLogger("consulbot")
 
 RSS_FEEDS = [
-    # Feed específico de Argentina
     "https://jobs.undp.org/rss_feeds/ARG.xml",
-    # Feed de Economics / Sustainable Finance (el área más relevante)
     "https://jobs.undp.org/cj_rss_feed.cfm?type=1&lev=5",
 ]
 

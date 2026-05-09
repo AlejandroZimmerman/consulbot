@@ -1,10 +1,3 @@
-"""
-Fuente: Banco Mundial / World Bank Group
-Portal: careers.worldbank.org (Workday)
-La búsqueda filtra por "consultant" y "Buenos Aires" / remoto.
-Nota: el BM está eliminando STCs para 2027, pero ETC y roles de staff
-y contratos via PIU (Project Implementation Units) siguen activos.
-"""
 import hashlib
 import logging
 import httpx
@@ -14,11 +7,8 @@ log = logging.getLogger("consulbot")
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; consulbot/1.0)"}
 
-# El portal del Banco Mundial usa Workday — scrapeamos la página de búsqueda
-# con filtros de texto. También monitoreamos el portal de DIME (Development Impact).
 URLS = [
     "https://worldbankgroup.csod.com/ux/ats/careersite/4/home?c=worldbankgroup&sq=consultant",
-    # Portal de DIME — convocatorias frecuentes de RA y STC para investigación
     "https://www.worldbank.org/en/about/unit/unit-dec/impactevaluation/JobOpenings",
 ]
 
@@ -36,13 +26,11 @@ async def fetch_worldbank() -> list[dict]:
                 resp.raise_for_status()
                 soup = BeautifulSoup(resp.text, "html.parser")
 
-                # DIME jobs page — estructura más simple
                 if "impactevaluation" in url:
                     for item in soup.select("div.item, li, p")[:30]:
                         text = item.get_text(strip=True)
                         if len(text) < 20:
                             continue
-                        # Heurística: buscar texto con "consultant", "RA", "analyst"
                         lower = text.lower()
                         if any(kw in lower for kw in ["consultant", "research assistant", "analyst", "sta "]):
                             a = item.select_one("a[href]")
@@ -60,7 +48,6 @@ async def fetch_worldbank() -> list[dict]:
                                 "source": "WB DIME Jobs",
                             })
                 else:
-                    # Portal Workday — las tarjetas de trabajo
                     cards = (
                         soup.select("li[class*='job']")
                         or soup.select("div[class*='job-listing']")
@@ -88,7 +75,6 @@ async def fetch_worldbank() -> list[dict]:
             except Exception as e:
                 log.error(f"WorldBank fetch falló ({url}): {e}")
 
-    # deduplicar
     seen, unique = set(), []
     for j in jobs:
         if j["id"] not in seen:
