@@ -2,7 +2,7 @@
 
 A Telegram bot that monitors job openings across international organizations and public institutions and delivers real-time notifications filtered by relevance to my profile.
 
-Built to solve a personal problem: checking seven different portals manually every few days is easy to miss. This does it automatically twice a day, scores each posting, and sends only what's worth reading.
+Built to solve a personal problem: checking multiple different portals manually every few days is easy to miss. This does it automatically twice a day, scores each posting, and sends only what's worth reading.
 
 ---
 
